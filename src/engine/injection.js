@@ -32,6 +32,7 @@ import { meguminAllSlotTriggers } from "../../data/slots.js";
 import { suiteEnabled } from "../core/power.js";
 import { backgroundJobNow, reviewBackgroundPrompt } from "./bgPrompts.js";
 import { loreForChat, loreForNames, loreBlock } from "../core/lore.js";
+import { fitPromptToContext } from "./contextFit.js";
 
 // Throttles the prompt-preview popup so token counting and rapid ST background
 // triggers can't stack popups. Read and written only by the injection handler.
@@ -484,6 +485,17 @@ async function buildPromptInjection(data, type) {
 
     if (replacementsMade > 0 && !activeGenerationOrder) {
         console.log(`[${extensionName}] ✅ Executed ${replacementsMade} block replacements.`);
+    }
+
+    // --- CONTEXT FIT ---
+    // SillyTavern sized the chat before the placeholders above were expanded;
+    // drop the oldest history now if the real prompt no longer fits. Before the
+    // preview, so the preview shows what is sent. Not on dry runs / token counts.
+    const isFitDry = type === "count" || type === "dry" || type === "dryRun" || data?.dryRun === true || data?.dry === true;
+    if (!isFitDry) {
+        await fitPromptToContext(messages, typeof getContext === "function" ? getContext() : null, {
+            enabled: extension_settings[extensionName]?.globalSettings?.contextFit !== false
+        });
     }
 
     // --- PROMPT PREVIEW ---

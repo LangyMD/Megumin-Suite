@@ -90,6 +90,17 @@ export function renderGlobalSettings(c) {
             <div class="ps-switch" style="${gs.promptPreview ? 'background: var(--gold);' : ''}"></div>
         </div>
     `);
+    // Context fit (engine/contextFit.js): on unless switched off.
+    const fitOn = gs.contextFit !== false;
+    $content.append(`
+        <div class="mtab-toggle-row ${fitOn ? 'active' : ''}" id="gs_toggle_context_fit" style="cursor: pointer; ${fitOn ? 'border-color: #10b981;' : ''}">
+            <div class="toggle-info">
+                <div class="toggle-label"><i class="fa-solid fa-compress" style="color: #10b981;"></i> Fit the prompt to my context size</div>
+                <div class="toggle-desc">Megumin's rules, blocks and memory are added after SillyTavern has counted the chat, so the prompt can come out bigger than your context. This drops the oldest chat messages until it fits. Your rules, card, memory and latest message always stay. Matters most for local models with small contexts; on a Custom (OpenAI-compatible) connection it asks the server for an exact count when it can (llama.cpp, vLLM, KoboldCpp).</div>
+            </div>
+            <div class="ps-switch" style="${fitOn ? 'background: #10b981;' : ''}"></div>
+        </div>
+    `);
     // Background prompts (plan 013): the switch, which jobs, and the log of the last 10.
     const bgJobs = gs.bgPreviewJobs || {};
     $content.append(`
@@ -232,6 +243,14 @@ export function renderGlobalSettings(c) {
     });
     $content.find("#gs_bg_log").on("click", () => openBackgroundLog());
     wireToggle("#gs_toggle_utility_prefill", "enableUtilityPrefill", "#10b981");
+    $content.find("#gs_toggle_context_fit").on("click", function () {
+        gs.contextFit = gs.contextFit === false;
+        const on = gs.contextFit;
+        saveSettingsDebounced();
+        $(this).toggleClass("active", on);
+        $(this).css("border-color", on ? "#10b981" : "var(--border-color)");
+        $(this).find(".ps-switch").css("background", on ? "#10b981" : "");
+    });
     wireToggle("#gs_toggle_lore_tasks", "loreInTasks", "#a855f7");
     wireToggle("#gs_toggle_chomusuke_switch", "chomusukeSwitchConnection", "#38bdf8");
 
