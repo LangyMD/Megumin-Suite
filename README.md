@@ -90,12 +90,13 @@ V11 **Тайна**. The headline feature is that your stories can now actually k
 About half the bug reports I get come down to mismatched settings—things like prefill toggles, CoT formatting, or how trackers are prompted. Model Setup takes the guesswork out of it. It's completely optional: a loadout is just the config I tested for that model, and you can always skip it and pick your own engine and settings.
 
 - **Tailored loadouts per model family.** Selecting a loadout sets the right engine variant, thinking prompt, target length, ban list size, Immersive HTML, and Chomusuke routing based on my testing.
-- **Four loadouts ready out of the box:**
+- **Five loadouts ready out of the box:**
   - **Gemini Pro** (Gemini 3.1 Pro, 2.5 Pro, Gemini 4)
   - **Claude** (Opus 5.5)
   - **Big Open Models** (GLM 5.3, GLM 5.3 Flash)
   - **Fast Models** (DeepSeek)
-  - *(Loadouts for Gemini Flash, Overthinkers like Kimi K3 / Xiaomi MiMo V2.6, and Local models like Gemma 4 31B / Qwen 3.8 27B are coming soon!)*
+  - **Local** (Gemma 4 31B, Qwen 3.8 27B). *Added in this fork and not tested by the author: V11 with the Thinking Cap, short replies, the short ban list, no Immersive HTML, Chomusuke off.*
+  - *(Loadouts for Gemini Flash and Overthinkers like Kimi K3 / Xiaomi MiMo V2.6 are coming soon!)*
 - **Quirk warnings included.** Each loadout tells you what to watch out for—for example, reminding you that Claude and GLM work best with prefill turned off, or that DeepSeek needs Chomusuke enabled because it loves skipping tracker blocks.
 - **Nothing is locked in.** You can preview and tweak every setting before applying a loadout, or adjust things freely afterward.
 - **Global or per-character.** Loadouts apply across your whole setup by default, or you can check **Only this character** to keep a specialized setup tied to one card.
@@ -212,6 +213,7 @@ Hook up your local ComfyUI instance to generate inline illustrations as the stor
 - **Story Director:** Gives the plot a nudge when you want help steering the narrative (mostly optional in V11, since V11 paces the plot naturally on its own).
 - **Story Config:** Set your genre, tone, POV, pacing, reply length, spice level, and world difficulty once in a clean UI instead of editing system prompts.
 - **Prompt Inspector / Preview:** Peek at—and hand-edit—the exact prompt about to be sent to your story model or Chomusuke before it fires.
+- **Fit the prompt to my context size** *(this fork, Global Settings, on by default)*: Megumin's rules, blocks and memory are added after SillyTavern counts the chat, so the prompt can come out bigger than your context. This drops the oldest chat messages inside the preset's history until it fits, and asks a Custom (OpenAI-compatible) server for an exact token count when it can (llama.cpp, vLLM, KoboldCpp). Ported from [Abdulhanan535's fork](https://github.com/Abdulhanan535/Megumin-Suite).
 - **Master On / Off Switch:** Located right in the top bar. Flipping it off bypasses the suite completely and sends vanilla SillyTavern prompts, making it easy to troubleshoot or switch to normal chatting.
 
 ---

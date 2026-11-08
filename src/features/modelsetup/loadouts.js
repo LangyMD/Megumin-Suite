@@ -157,13 +157,25 @@ export const LOADOUTS = [
             { tone: "red", chomusuke: true, text: "<b>DeepSeek needs Chomusuke.</b> It leaves out everything after the story: the blocks, World State, the notebook and the image tags. Chomusuke writes them for it." }
         ],
         settings: { mode: "v11-deepseek", thinking: true, thinkingCap: false, length: LENGTH_SHORT, banList: "short", html: false, chomusuke: "chomusuke" }
+    },
+    {
+        // Not one of the author's tested loadouts: put together from the notes
+        // above (Flash plans better with thinking written out, the Cap for slow
+        // thinkers, the short ban list for Chinese models, HTML leaking on GLM).
+        id: "local", name: "Local", icon: "fa-house-laptop", models: "Gemma 4 31B, Qwen 3.8 27B",
+        why: "Short replies, custom thinking with the Thinking Cap, and the short ban list, so a model on your own machine stays quick and keeps the format. Connect it as Chat Completion → Custom (OpenAI-compatible).",
+        notes: [
+            { tone: "gold", text: "<b>Qwen with its own thinking on:</b> turn custom thinking and the Thinking Cap off, the way the GLM loadout does. Gemma has no thinking of its own, so leave them on." },
+            { tone: "gold", text: "<b>Small context?</b> Keep <i>Fit the prompt to my context size</i> on in Global Settings, and start with two or three blocks." },
+            { tone: "gold", chomusuke: true, text: "<b>Chomusuke is off here.</b> A second local model fights the story model for the GPU. If blocks go missing, turn it on with <i>Use my current connection</i> and <i>Combine calls</i>." }
+        ],
+        settings: { mode: "v11-voice", thinking: true, thinkingCap: true, length: LENGTH_SHORT, banList: "short", html: false, chomusuke: "story" }
     }
 ];
 
 export const COMING_SOON = [
     { name: "Gemini Flash", icon: "fa-gem", models: "Gemini 3.5 – 3.8 Flash" },
-    { name: "Overthinkers", icon: "fa-hourglass-half", models: "Kimi K3, Xiaomi MiMo V2.6" },
-    { name: "Local", icon: "fa-house-laptop", models: "Gemma 4 31B, Qwen 3.8 27B" }
+    { name: "Overthinkers", icon: "fa-hourglass-half", models: "Kimi K3, Xiaomi MiMo V2.6" }
 ];
 
 export const loadoutById = id => LOADOUTS.find(l => l.id === id);
