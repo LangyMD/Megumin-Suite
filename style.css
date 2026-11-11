@@ -1118,6 +1118,39 @@
     font-weight: 600;
 }
 
+.wstyle-tag-mine {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.wstyle-tag-del {
+    font-size: 0.65rem;
+    opacity: 0.55;
+}
+
+.wstyle-tag-del:hover {
+    opacity: 1;
+    color: #f87171;
+}
+
+.wstyle-tag-add-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.wstyle-tag-add-row .wstyle-tag-input {
+    flex: 1;
+    min-width: 0;
+}
+
+.wstyle-tag-add-row .wstyle-tag-add {
+    white-space: nowrap;
+    padding: 6px 14px;
+    font-size: 0.75rem;
+}
+
 .wstyle-insights-panel {
     background: var(--bg-main);
     border: 1px solid var(--border-color);
