@@ -699,7 +699,9 @@ export function renderStyleEditor(c, editId, presetData = null) {
                 tEl.toggleClass("selected");
             }); grid.append(tEl);
         }); catWrap.append(grid); tagContainer.append(catWrap);
-    }); c.append(tagContainer);
+    });
+    tagContainer.append(renderMyTags(currentStyle));
+    c.append(tagContainer);
 
     // ── AI INSIGHTS PANEL ──
     c.append(`
@@ -796,4 +798,98 @@ export function renderStyleEditor(c, editId, presetData = null) {
             return rule;
         }); $(this).prop("disabled", false).html(`<i class="fa-solid fa-bolt"></i> Generate Writing Rule`);
     });
+}
+
+// ── MY TAGS ─────────────────────────────────────────────────────────────────
+// Tags you write yourself, next to the built-in ones. They are kept once for
+// every character (globalSettings.customStyleTags), so a tag written for one
+// style can be picked for the next. A style's tags are plain strings, so the
+// Generate Writing Rule prompt takes these exactly like the built-in ones.
+
+const MAX_TAG_LENGTH = 60;
+
+function myTagStore() {
+    const store = extension_settings[extensionName];
+    if (!store.globalSettings) store.globalSettings = {};
+    const gs = store.globalSettings;
+    if (!Array.isArray(gs.customStyleTags)) gs.customStyleTags = [];
+    return gs;
+}
+
+/** Every tag name the built-in library and the AI suggestions already show. */
+function shownElsewhere(currentStyle) {
+    const names = new Set();
+    (hardcodedLogic.styles || []).forEach(cat => cat.tags.forEach(t => names.add(t.id.toLowerCase())));
+    (currentStyle.generatedOptions || []).forEach(t => names.add(t.toLowerCase()));
+    return names;
+}
+
+function renderMyTags(currentStyle) {
+    const gs = myTagStore();
+    const wrap = $(`<div style="margin-bottom: 18px;"></div>`);
+    wrap.append(`<div class="wstyle-tag-cat-title">My Tags</div>`);
+    const grid = $(`<div class="wstyle-tag-grid"></div>`);
+    wrap.append(grid);
+
+    const draw = () => {
+        grid.empty();
+        // Your saved tags, plus any tag this style already uses that no list
+        // shows (an older style, or one whose tag you deleted from My Tags).
+        const elsewhere = shownElsewhere(currentStyle);
+        const mine = [...gs.customStyleTags];
+        currentStyle.tags.forEach(t => {
+            if (!elsewhere.has(t.toLowerCase()) && !mine.some(m => m.toLowerCase() === t.toLowerCase())) mine.push(t);
+        });
+        mine.forEach(tagName => {
+            const isSel = currentStyle.tags.includes(tagName);
+            const saved = gs.customStyleTags.includes(tagName);
+            const tEl = $(`<span class="wstyle-tag wstyle-tag-mine ${isSel ? 'selected' : ''}"></span>`);
+            tEl.append($(`<span></span>`).text(tagName));
+            if (saved) {
+                const del = $(`<i class="fa-solid fa-xmark wstyle-tag-del" title="Remove from My Tags (styles that use it keep it)"></i>`);
+                del.on("click", e => {
+                    e.stopPropagation();
+                    gs.customStyleTags = gs.customStyleTags.filter(t => t !== tagName);
+                    saveSettingsDebounced();
+                    draw();
+                });
+                tEl.append(del);
+            }
+            tEl.on("click", () => {
+                if (currentStyle.tags.includes(tagName)) currentStyle.tags = currentStyle.tags.filter(t => t !== tagName); else currentStyle.tags.push(tagName);
+                tEl.toggleClass("selected");
+            });
+            grid.append(tEl);
+        });
+    };
+
+    const input = $(`<input type="text" class="ps-modern-input wstyle-tag-input" maxlength="${MAX_TAG_LENGTH}" placeholder="Write your own tag, e.g. hard-boiled, Pratchett-esque" />`);
+    const addBtn = $(`<button type="button" class="ps-modern-btn secondary wstyle-tag-add"><i class="fa-solid fa-plus"></i> Add</button>`);
+    const add = () => {
+        const tagName = String(input.val() || "").replace(/[,\n\r]+/g, " ").replace(/\s+/g, " ").trim().slice(0, MAX_TAG_LENGTH);
+        if (!tagName) return;
+        const lower = tagName.toLowerCase();
+        // A tag the library already has: select that one instead of a twin.
+        const builtIn = (hardcodedLogic.styles || []).flatMap(cat => cat.tags.map(t => t.id)).find(t => t.toLowerCase() === lower);
+        const existing = builtIn || gs.customStyleTags.find(t => t.toLowerCase() === lower) || currentStyle.tags.find(t => t.toLowerCase() === lower);
+        const name = existing || tagName;
+        if (!builtIn && !gs.customStyleTags.includes(name)) {
+            gs.customStyleTags.push(name);
+            saveSettingsDebounced();
+        }
+        if (!currentStyle.tags.includes(name)) currentStyle.tags.push(name);
+        input.val("");
+        if (builtIn) {
+            // Light up the built-in chip too.
+            wrap.parent().find(".wstyle-tag").filter(function () { return $(this).text() === builtIn; }).addClass("selected");
+            toastr.info(`"${builtIn}" is already a built-in tag, so that one is selected.`);
+        }
+        draw();
+    };
+    addBtn.on("click", add);
+    input.on("keydown", e => { if (e.key === "Enter") { e.preventDefault(); add(); } });
+    wrap.append($(`<div class="wstyle-tag-add-row"></div>`).append(input).append(addBtn));
+
+    draw();
+    return wrap;
 }
